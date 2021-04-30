@@ -6,7 +6,8 @@ import {
 	TextDocuments, TextDocument, TextEdit, TextDocumentIdentifier,
 	ErrorMessageTracker, IPCMessageReader, IPCMessageWriter,
 	NotificationType,
-	DocumentFormattingRequest
+	DocumentFormattingRequest,
+	DiagnosticSeverity
 } from 'vscode-languageserver';
 import Uri from 'vscode-uri';
 import {makeDiagnostic, computeKey} from './utils';
@@ -41,6 +42,7 @@ class Linter {
 	private workspaceRoot: string;
 	private lib: any;
 	private options: any;
+	private overrideSeverity: undefined | Settings['xo']['overrideSeverity'];
 	private readonly codeActions: Map<Map<AutoFix>> = Object.create(null);
 	private readonly messageQueue: BufferedMessageQueue;
 
@@ -92,6 +94,7 @@ class Linter {
 			const settings = params.settings as Settings;
 
 			this.options = settings.xo ? settings.xo.options || {} : {};
+			this.overrideSeverity = settings.xo ? settings.xo.overrideSeverity || undefined : undefined;
 			this.validateMany(this.documents.all());
 		});
 
@@ -211,6 +214,15 @@ class Linter {
 
 				const diagnostics: Diagnostic[] = results[0].messages.map((problem: any) => {
 					const diagnostic = makeDiagnostic(problem);
+					if (this.overrideSeverity) {
+						const mapSeverity: {[severitySetting in Settings['xo']['overrideSeverity']]: DiagnosticSeverity} = {
+							off: diagnostic.severity,
+							info: DiagnosticSeverity.Information,
+							warn: DiagnosticSeverity.Warning,
+							error: DiagnosticSeverity.Error,
+						};
+						diagnostic.severity = mapSeverity[this.overrideSeverity];
+					}
 					this.recordCodeAction(document, diagnostic, problem);
 					return diagnostic;
 				});

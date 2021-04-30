@@ -42,6 +42,12 @@
 					"default": false,
 					"description": "Control whether xo is enabled or not."
 				},
+				"xo.overrideSeverity": {
+					"type": "string",
+          "default": "off",
+					"enum": ["off", "info", "warn", "error"],
+					"description": "Override severity."
+				},
 				"xo.options": {
 					"type": "object",
 					"default": {},
