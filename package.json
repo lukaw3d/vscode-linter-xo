@@ -74,7 +74,7 @@
 		"watch:server": "tsc -w -p ./server/tsconfig.json",
 		"lint:client": "tslint -p client --format stylish",
 		"lint:server": "tslint -p server --format stylish",
-		"postinstall": "cd client && npm install && cd ../server && npm install && cd .."
+		"postinstall": "cd client && yarn install && cd ../server && yarn install && cd .."
 	},
 	"devDependencies": {
 		"@types/node": "^8.10.18",
